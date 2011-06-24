@@ -21,10 +21,11 @@ import javax.swing.event.ListSelectionListener;
 import org.openscience.cdk.Molecule;
 import org.openscience.cdk.exception.CDKException;
 import org.openscience.cdk.interfaces.IAtom;
+import org.openscience.cdk.interfaces.IAtomContainer;
 import org.openscience.cdk.interfaces.IMolecule;
 import org.openscience.cdk.io.ISimpleChemObjectReader;
 import org.openscience.cdk.io.MDLReader;
-import org.openscience.cdk.renderer.generators.IAtomContainerGenerator;
+import org.openscience.cdk.renderer.generators.IGenerator;
 import org.openscience.cdk.signature.MoleculeSignature;
 import org.openscience.cdk.signature.Orbit;
 
@@ -47,8 +48,8 @@ public class SignatureClassViewer extends JFrame
     public SignatureClassViewer(String[] args) {
         setLayout(new BorderLayout());
         
-        List<IAtomContainerGenerator> initialGenerators = 
-            new ArrayList<IAtomContainerGenerator>();
+        List<IGenerator<IAtomContainer>> initialGenerators = 
+            new ArrayList<IGenerator<IAtomContainer>>();
         atomSymmetryClassGenerator = new AtomSymmetryClassGenerator();
         initialGenerators.add(atomSymmetryClassGenerator);
         

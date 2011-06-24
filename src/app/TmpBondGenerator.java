@@ -13,12 +13,13 @@ import org.openscience.cdk.renderer.RendererModel;
 import org.openscience.cdk.renderer.elements.ElementGroup;
 import org.openscience.cdk.renderer.elements.IRenderingElement;
 import org.openscience.cdk.renderer.elements.LineElement;
-import org.openscience.cdk.renderer.generators.IAtomContainerGenerator;
-import org.openscience.cdk.renderer.generators.IGeneratorParameter;
 import org.openscience.cdk.renderer.generators.BasicBondGenerator.BondWidth;
+import org.openscience.cdk.renderer.generators.BasicSceneGenerator.Scale;
+import org.openscience.cdk.renderer.generators.IGenerator;
+import org.openscience.cdk.renderer.generators.IGeneratorParameter;
 import org.openscience.cdk.renderer.selection.IChemObjectSelection;
 
-public class TmpBondGenerator implements IAtomContainerGenerator {
+public class TmpBondGenerator implements IGenerator<IAtomContainer> {
     
     public IRenderingElement generate(
             IAtomContainer atomContainer, RendererModel model) {
@@ -39,12 +40,12 @@ public class TmpBondGenerator implements IAtomContainerGenerator {
             if (selectedContainer != null && selectedContainer.contains(bond)) {
                 color = Color.RED;
             }
-            double mw = model.getRenderingParameter(BondWidth.class).getValue(); 
+            double mw = model.get(BondWidth.class); 
             double w;
             if (bond.getOrder() == IBond.Order.DOUBLE) {
-                w =  (mw / model.getScale()) * 3;
+                w =  (mw / model.get(Scale.class)) * 3;
             } else {
-                w =  mw / model.getScale();
+                w =  mw / model.get(Scale.class);
             }
             bondGroup.add(new LineElement(pA.x, pA.y, pB.x, pB.y, w, color));
         }

@@ -14,11 +14,12 @@ import org.openscience.cdk.renderer.RendererModel;
 import org.openscience.cdk.renderer.elements.ElementGroup;
 import org.openscience.cdk.renderer.elements.IRenderingElement;
 import org.openscience.cdk.renderer.elements.OvalElement;
-import org.openscience.cdk.renderer.generators.IAtomContainerGenerator;
+import org.openscience.cdk.renderer.generators.IGenerator;
 import org.openscience.cdk.renderer.generators.IGeneratorParameter;
+import org.openscience.cdk.renderer.generators.BasicSceneGenerator.Scale;
 import org.openscience.cdk.signature.Orbit;
 
-public class AtomSymmetryClassGenerator implements IAtomContainerGenerator {
+public class AtomSymmetryClassGenerator implements IGenerator<IAtomContainer> {
     
     private Map<Orbit, Color> orbitColorMap;
     
@@ -86,7 +87,8 @@ public class AtomSymmetryClassGenerator implements IAtomContainerGenerator {
         ElementGroup elements = new ElementGroup();
 //        double atomHighlightRadius = 0.15;
         double atomHighlightOnScreenRadius = 8;
-        double atomHighlightRadius = atomHighlightOnScreenRadius / model.getScale();
+        double atomHighlightRadius = 
+            atomHighlightOnScreenRadius / model.get(Scale.class);
         for (Orbit o : orbitColorMap.keySet()) {
             Color color = orbitColorMap.get(o);
             System.out.println("setting color " + color);

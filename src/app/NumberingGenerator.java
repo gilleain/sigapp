@@ -12,10 +12,10 @@ import org.openscience.cdk.renderer.RendererModel;
 import org.openscience.cdk.renderer.elements.ElementGroup;
 import org.openscience.cdk.renderer.elements.IRenderingElement;
 import org.openscience.cdk.renderer.elements.TextElement;
-import org.openscience.cdk.renderer.generators.IAtomContainerGenerator;
+import org.openscience.cdk.renderer.generators.IGenerator;
 import org.openscience.cdk.renderer.generators.IGeneratorParameter;
 
-public class NumberingGenerator implements IAtomContainerGenerator {
+public class NumberingGenerator implements IGenerator<IAtomContainer> {
     
     public boolean on = true;
 

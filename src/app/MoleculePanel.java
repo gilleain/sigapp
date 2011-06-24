@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 import org.openscience.cdk.graph.ConnectivityChecker;
 import org.openscience.cdk.interfaces.IAtom;
 import org.openscience.cdk.interfaces.IAtomContainer;
+import org.openscience.cdk.interfaces.IBond;
 import org.openscience.cdk.interfaces.IMolecule;
 import org.openscience.cdk.interfaces.IMoleculeSet;
 import org.openscience.cdk.layout.StructureDiagramGenerator;
@@ -21,14 +22,13 @@ import org.openscience.cdk.renderer.AtomContainerRenderer;
 import org.openscience.cdk.renderer.RendererModel;
 import org.openscience.cdk.renderer.font.AWTFontManager;
 import org.openscience.cdk.renderer.generators.BasicAtomGenerator;
-import org.openscience.cdk.renderer.generators.BasicSceneGenerator;
-import org.openscience.cdk.renderer.generators.ExtendedAtomGenerator;
-import org.openscience.cdk.renderer.generators.IAtomContainerGenerator;
 import org.openscience.cdk.renderer.generators.BasicAtomGenerator.CompactAtom;
 import org.openscience.cdk.renderer.generators.BasicAtomGenerator.CompactShape;
 import org.openscience.cdk.renderer.generators.BasicAtomGenerator.ShowExplicitHydrogens;
-import org.openscience.cdk.renderer.generators.BasicSceneGenerator.BackGroundColor;
-import org.openscience.cdk.renderer.generators.ExtendedAtomGenerator.ShowImplicitHydrogens;
+import org.openscience.cdk.renderer.generators.BasicBondGenerator;
+import org.openscience.cdk.renderer.generators.BasicSceneGenerator;
+import org.openscience.cdk.renderer.generators.BasicSceneGenerator.BackgroundColor;
+import org.openscience.cdk.renderer.generators.IGenerator;
 import org.openscience.cdk.renderer.selection.IChemObjectSelection;
 import org.openscience.cdk.renderer.visitor.AWTDrawVisitor;
 import org.openscience.cdk.signature.MoleculeFromSignatureBuilder;
@@ -47,16 +47,16 @@ public class MoleculePanel extends JPanel {
     
     public int moleculeHeight;
 
-    private ExtendedAtomGenerator extendedAtomGenerator;
+//    private ExtendedAtomGenerator extendedAtomGenerator;
 
     private NumberingGenerator numberingGenerator;
     
     public MoleculePanel(int panelWidth, int panelHeight) {
-        this(panelWidth, panelHeight, new ArrayList<IAtomContainerGenerator>());
+        this(panelWidth, panelHeight, new ArrayList<IGenerator<IAtomContainer>>());
     }
     
     public MoleculePanel(int panelWidth, int panelHeight, 
-            List<IAtomContainerGenerator> initialGenerators) {
+            List<IGenerator<IAtomContainer>> initialGenerators) {
         initialGenerators.addAll(getGenerators());
         renderer = new AtomContainerRenderer(
                 initialGenerators, new AWTFontManager());
@@ -80,15 +80,14 @@ public class MoleculePanel extends JPanel {
     private void setRenderingParameters() {
         RendererModel model = renderer.getRenderer2DModel();
 //        model.setDrawNumbers(true);
-        model.setDrawNumbers(false);
+//        model.set(, false);
         
-        model.getRenderingParameter(CompactShape.class).setValue(
-                        BasicAtomGenerator.Shape.OVAL);
-        model.getRenderingParameter(CompactAtom.class).setValue(true);
+        model.set(CompactShape.class, BasicAtomGenerator.Shape.OVAL);
+        model.set(CompactAtom.class, true);
 //        model.getRenderingParameter(KekuleStructure.class).setValue(true);
-        model.getRenderingParameter(ShowExplicitHydrogens.class).setValue(false);
-        model.getRenderingParameter(ShowImplicitHydrogens.class).setValue(false);
-        model.getRenderingParameter(BackGroundColor.class).setValue(Color.blue);
+        model.set(ShowExplicitHydrogens.class, false);
+//        model.set(ShowImplicitHydrogens.class, false);
+        model.set(BackgroundColor.class, Color.blue);
 //        for (IGeneratorParameter p : model.getRenderingParameters()) {
 //            System.out.println(p.getClass().getSimpleName() + " " + p.getValue());
 //        }
@@ -96,15 +95,16 @@ public class MoleculePanel extends JPanel {
 //                BasicAtomGenerator.CompactAtom.class).getValue());
     }
 
-    private List<IAtomContainerGenerator> getGenerators() {
-        List<IAtomContainerGenerator> generators = 
-            new ArrayList<IAtomContainerGenerator>();
+    private List<IGenerator<IAtomContainer>> getGenerators() {
+        List<IGenerator<IAtomContainer>> generators = 
+            new ArrayList<IGenerator<IAtomContainer>>();
 //        generators.add(new RingGenerator());
-//        generators.add(new BasicBondGenerator());
+        generators.add(new BasicBondGenerator());
+        generators.add(new BasicAtomGenerator());
         generators.add(new BasicSceneGenerator());
-        generators.add(new TmpBondGenerator());
-        extendedAtomGenerator = new ExtendedAtomGenerator();
-        generators.add(extendedAtomGenerator);
+//        generators.add(new TmpBondGenerator());
+//        extendedAtomGenerator = new ExtendedAtomGenerator();
+//        generators.add(extendedAtomGenerator);
         
         numberingGenerator = new NumberingGenerator();
         generators.add(numberingGenerator);
@@ -118,11 +118,14 @@ public class MoleculePanel extends JPanel {
                     NoNotificationChemObjectBuilder.getInstance());
         builder.makeFromColoredTree(AbstractVertexSignature.parse(signature));
         IAtomContainer container = builder.getAtomContainer();
+        int i = 0;
+        for (IBond bond : container.bonds()) {
+            System.out.println(i + " " + bond.getAtomCount());
+            i++;
+        }
         setMolecule(
                 container.getBuilder().newInstance(IMolecule.class, container));
     }
-    
-   
     
     public void setMolecule(IMolecule molecule) {
         if (ConnectivityChecker.isConnected(molecule)) {
@@ -165,9 +168,8 @@ public class MoleculePanel extends JPanel {
                 Rectangle b = new Rectangle(getWidth(), getHeight());
 //                renderer.setup(molecule, getBounds());
                 renderer.setup(molecule, b);
-                renderer.paintMolecule(
+                renderer.paint(molecule, new AWTDrawVisitor(g2), b, false);
 //                        molecule, new AWTDrawVisitor(g2), getBounds(), false);
-                        molecule, new AWTDrawVisitor(g2), b, false);
             } catch (NullPointerException npe) {
                 npe.printStackTrace();
             }
